@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from "react";
-import NumberList from "./components/NumberList";
-import "./components/style.css";  // Ensure styles.css is in `src/`
-
+import Calculator from "./components/Calculator";
+import "./styles.css"; //
 
 function App() {
   const [numberType, setNumberType] = useState("p");
-  const [data, setData] = useState(null);
+  const [numbers, setNumbers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -19,7 +18,7 @@ function App() {
         if (!response.ok) throw new Error("Failed to fetch data");
 
         const result = await response.json();
-        setData(result);
+        setNumbers(result.numbers || []);
       } catch (err) {
         setError("Error fetching data");
       } finally {
@@ -30,26 +29,25 @@ function App() {
     fetchData();
   }, [numberType]);
 
+  // Calculate Average
+  const calculateAverage = () => {
+    if (!numbers.length) return 0;
+    const sum = numbers.reduce((acc, num) => acc + num, 0);
+    return (sum / numbers.length).toFixed(2);
+  };
+
   return (
-    <div className="container">
+    <div className="app-container">
       <h1>Average Calculator</h1>
-
-      <div className="button-group">
-        <button onClick={() => setNumberType("p")}>Prime</button>
-        <button onClick={() => setNumberType("f")}>Fibonacci</button>
-        <button onClick={() => setNumberType("e")}>Even</button>
-        <button onClick={() => setNumberType("r")}>Random</button>
-      </div>
-
-      {loading && <p>Loading...</p>}
-      {error && <p className="error">{error}</p>}
-
-      {data && <NumberList data={data} />}
+      <Calculator 
+        numbers={numbers} 
+        setNumberType={setNumberType} 
+        average={calculateAverage()} 
+        loading={loading} 
+        error={error} 
+      />
     </div>
   );
 }
 
 export default App;
-
-
-
